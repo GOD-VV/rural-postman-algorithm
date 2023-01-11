@@ -133,7 +133,7 @@ std::pair<int64_t, std::vector<int> > RuralPostman::Run(int n_arg,
         }
     }
 
-
+    /*
     // Debug
     for (std::vector<int> component: components_) {
         std::cout << "Component:" << std::endl;
@@ -142,6 +142,7 @@ std::pair<int64_t, std::vector<int> > RuralPostman::Run(int n_arg,
         }
         std::cout << std::endl;
     }
+     */
 
     for (int i = 0; i < components_.size() - 1; ++i) {
         for (int j = i + 1; j < components_.size(); ++j) {
@@ -225,7 +226,7 @@ std::pair<int64_t, std::vector<Edge> > RuralPostman::BruteforceSearch(int num,
             g_new[e.u][e.v].w = g_new[e.v][e.u].w = e.w;
         }
 
-
+        /*
         // Debug
         std::cout << "Current edges:" << std::endl;
         for (Edge e: current_edges) {
@@ -238,7 +239,7 @@ std::pair<int64_t, std::vector<Edge> > RuralPostman::BruteforceSearch(int num,
             }
             std::cout << std::endl;
         }
-
+        */
 
 
         if (IsConnected(g_new, subgraph_vertices_)) {
@@ -266,7 +267,7 @@ std::pair<int64_t, std::vector<Edge> > RuralPostman::BruteforceSearch(int num,
                 }
             }
 
-
+            /*
             // Debug
             std::cout << "Odd vertices:" << std::endl;
             for (int v: odd_vertices) {
@@ -278,7 +279,7 @@ std::pair<int64_t, std::vector<Edge> > RuralPostman::BruteforceSearch(int num,
                 std::cout << e.u << " " << e.v << " " << e.w << std::endl;
             }
             std::cout << std::endl;
-
+            */
 
             int m = odd_vertices_edges.size();
             std::vector<int> odd_vertices_mapping(odd_vertices.size());
@@ -292,14 +293,16 @@ std::pair<int64_t, std::vector<Edge> > RuralPostman::BruteforceSearch(int num,
                 w[i] = odd_vertices_edges[i].w;
             }
 
+            /*
             // Debug:
             for (int i = 0; i < m; ++i) {
                 std::cout << u[i] << " " << v[i] << " " << w[i] << std::endl;
             }
+             */
 
             auto ans = MinMatching(odd_vertices.size()).Run(odd_vertices.size(), m,
                                                             u, v, w);
-
+            /*
             // Debug
             std::cout << "Min matching:" << std::endl;
             std::cout << ans.first << std::endl;
@@ -307,7 +310,7 @@ std::pair<int64_t, std::vector<Edge> > RuralPostman::BruteforceSearch(int num,
                 std::cout << i << " ";
             }
             std::cout << std::endl;
-
+            */
 
             if (ans.first == -1) {
                 return std::make_pair(RuralPostman::INF, std::vector<Edge>());
