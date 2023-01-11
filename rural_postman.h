@@ -33,6 +33,7 @@ class RuralPostman{
   std::vector<std::vector<int> > components_;
   std::vector<std::pair<int, int> > component_pairs_;
   std::vector<std::vector<Edge> > subgraph_;
+  std::vector<int> subgraph_vertices_;
 
   // Graph transformation according to Lemma 3.2
   void TransformGraph();
@@ -41,7 +42,7 @@ class RuralPostman{
   std::pair<int64_t, std::vector<Edge> > BruteforceSearch(int, std::vector<Edge>);
 
   // Check if graph is connected
-  bool IsConnected(std::vector<std::vector<Edge> >);
+  bool IsConnected(std::vector<std::vector<Edge> >, std::vector<int>);
 
   // Check if graph is eulerian
   std::vector<Edge> FindEulerCycle(std::vector<std::vector<Edge> >);
