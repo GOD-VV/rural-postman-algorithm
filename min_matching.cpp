@@ -26,14 +26,16 @@ void MinMatching::set_slack(int x) {
 }
 
 void MinMatching::q_push(int x) {
-    if (x <= n_)return q_.push_back(x);
+    if (x <= n_)
+        return q_.push_back(x);
     for (int i : flower_[x])
         q_push(i);
 }
 
 void MinMatching::set_st(int x, int b) {
     st_[x] = b;
-    if (x <= n_)return;
+    if (x <= n_)
+        return;
     for (int i : flower_[x])
         set_st(i, b);
 }
@@ -43,7 +45,7 @@ int MinMatching::get_pr(int b, int xr) {
     int pr = find(flower_[b].begin(), flower_[b].end(), xr) - flower_[b].begin();
     if (pr % 2 == 1) {
         reverse(flower_[b].begin() + 1, flower_[b].end());
-        return (int) flower_[b].size() - pr;
+        return static_cast<int>(flower_[b].size() - pr);
     } else
         return pr;
 }
@@ -53,7 +55,8 @@ void MinMatching::set_match(int u, int v) {
     if (u <= n_)
         return;
     Edge e = g_[u][v];
-    int xr = flower_from_[u][e.u], pr = get_pr(u, xr);
+    int xr = flower_from_[u][e.u];
+    int pr = get_pr(u, xr);
     for (int i = 0; i < pr; ++i)
         set_match(flower_[u][i], flower_[u][i ^ 1]);
     set_match(xr, v);
@@ -71,8 +74,10 @@ void MinMatching::augment(int u, int v) {
 int MinMatching::get_lca(int u, int v) {
     static int t = 0;
     for (++t; u || v; std::swap(u, v)) {
-        if (u == 0)continue;
-        if (vis_[u] == t)return u;
+        if (u == 0)
+            continue;
+        if (vis_[u] == t)
+            return u;
         vis_[u] = t;
         u = st_[match_[u]];
         if (u)
@@ -91,11 +96,17 @@ void MinMatching::add_blossom(int u, int lca, int v) {
     match_[b] = match_[lca];
     flower_[b].clear();
     flower_[b].push_back(lca);
-    for (int x = u, y; x != lca; x = st_[pa_[y]])
-        flower_[b].push_back(x), flower_[b].push_back(y = st_[match_[x]]), q_push(y);
+    for (int x = u, y; x != lca; x = st_[pa_[y]]) {
+        flower_[b].push_back(x);
+        flower_[b].push_back(y = st_[match_[x]]);
+        q_push(y);
+    }
     reverse(flower_[b].begin() + 1, flower_[b].end());
-    for (int x = v, y; x != lca; x = st_[pa_[y]])
-        flower_[b].push_back(x), flower_[b].push_back(y = st_[match_[x]]), q_push(y);
+    for (int x = v, y; x != lca; x = st_[pa_[y]]) {
+        flower_[b].push_back(x);
+        flower_[b].push_back(y = st_[match_[x]]);
+        q_push(y);
+    }
     set_st(b, b);
     for (int x = 1; x <= n_x_; ++x)
         g_[b][x].w = g_[x][b].w = 0;
@@ -104,8 +115,10 @@ void MinMatching::add_blossom(int u, int lca, int v) {
     for (int i = 0; i < flower_[b].size(); ++i) {
         int xs = flower_[b][i];
         for (int x = 1; x <= n_x_; ++x)
-            if (g_[b][x].w == 0 || DIST(g_[xs][x]) < DIST(g_[b][x]))
-                g_[b][x] = g_[xs][x], g_[x][b] = g_[x][xs];
+            if (g_[b][x].w == 0 || DIST(g_[xs][x]) < DIST(g_[b][x])) {
+                g_[b][x] = g_[xs][x];
+                g_[x][b] = g_[x][xs];
+            }
         for (int x = 1; x <= n_; ++x)
             if (flower_from_[xs][x])
                 flower_from_[b][x] = xs;
@@ -116,18 +129,24 @@ void MinMatching::add_blossom(int u, int lca, int v) {
 void MinMatching::expand_blossom(int b) {
     for (int i : flower_[b])
         set_st(i, i);
-    int xr = flower_from_[b][g_[b][pa_[b]].u], pr = get_pr(b, xr);
+    int xr = flower_from_[b][g_[b][pa_[b]].u];
+    int pr = get_pr(b, xr);
     for (int i = 0; i < pr; i += 2) {
-        int xs = flower_[b][i], xns = flower_[b][i + 1];
+        int xs = flower_[b][i];
+        int xns = flower_[b][i + 1];
         pa_[xs] = g_[xns][xs].u;
-        s_[xs] = 1, s_[xns] = 0;
-        slack_[xs] = 0, set_slack(xns);
+        s_[xs] = 1;
+        s_[xns] = 0;
+        slack_[xs] = 0;
+        set_slack(xns);
         q_push(xns);
     }
-    s_[xr] = 1, pa_[xr] = pa_[b];
+    s_[xr] = 1;
+    pa_[xr] = pa_[b];
     for (int i = pr + 1; i < flower_[b].size(); ++i) {
         int xs = flower_[b][i];
-        s_[xs] = -1, set_slack(xs);
+        s_[xs] = -1;
+        set_slack(xs);
     }
     st_[b] = 0;
 }
@@ -135,13 +154,16 @@ void MinMatching::expand_blossom(int b) {
 bool MinMatching::on_found_Edge(const Edge& e) {
     int u = st_[e.u], v = st_[e.v];
     if (s_[v] == -1) {
-        pa_[v] = e.u, s_[v] = 1;
+        pa_[v] = e.u;
+        s_[v] = 1;
         int nu = st_[match_[v]];
         slack_[v] = slack_[nu] = 0;
-        s_[nu] = 0, q_push(nu);
+        s_[nu] = 0;
+        q_push(nu);
     } else if (s_[v] == 0) {
         int lca = get_lca(u, v);
-        if (!lca)return augment(u, v), augment(v, u), 1;
+        if (!lca)
+            return augment(u, v), augment(v, u), 1;
         else add_blossom(u, lca, v);
     }
     return false;
@@ -152,8 +174,11 @@ bool MinMatching::matching() {
     std::fill(slack_.begin(), slack_.begin() + n_x_ + 1, 0);
     q_.clear();
     for (int x = 1; x <= n_x_; ++x)
-        if (st_[x] == x && !match_[x])
-            pa_[x] = 0, s_[x] = 0, q_push(x);
+        if (st_[x] == x && !match_[x]) {
+            pa_[x] = 0;
+            s_[x] = 0;
+            q_push(x);
+        }
     if (q_.empty())
         return false;
     for (;;) {
@@ -213,8 +238,10 @@ std::pair<int64_t, int> MinMatching::weight_blossom() {
     n_x_ = n_;
     int n_matches = 0;
     int64_t tot_w = 0;
-    for (int u = 0; u <= n_; ++u)
-        st_[u] = u, flower_[u].clear();
+    for (int u = 0; u <= n_; ++u) {
+        st_[u] = u;
+        flower_[u].clear();
+    }
     int w_max = 0;
     for (int u = 1; u <= n_; ++u)
         for (int v = 1; v <= n_; ++v) {
