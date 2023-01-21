@@ -1,17 +1,28 @@
 #include "rural_postman.h"
 #include "min_matching.h"
 #include <iostream>
+#include <utility>
 
 void RuralPostman::TransformGraph() {
     // The shortest path between every pair of vertices using Floyd-Warshall algorithm
     for (int k = 0; k < n_; ++k) {
         for (int i = 0; i < n_; ++i) {
             for (int j = 0; j < n_; ++j) {
+                if (chosen_vertices_.find(std::make_pair(i, j)) != chosen_vertices_.end() ||
+                    chosen_vertices_.find(std::make_pair(j, i)) != chosen_vertices_.end())
+                    continue;
                 if (g_[i][k].w + g_[k][j].w < g_[i][j].w) {
                     g_[i][j].w = g_[i][k].w + g_[k][j].w;
+                    g_[j][i].w = g_[i][j].w;
                     shortest_path_[i][j] = shortest_path_[i][k];
                     shortest_path_[i][j].push_back(k);
+                    shortest_path_[i][j].insert(shortest_path_[i][j].end(),
+                                                shortest_path_[k][j].begin(),
+                                                shortest_path_[k][j].end());
                     shortest_path_[i][j].push_back(j);
+
+                    shortest_path_[j][i] = shortest_path_[i][j];
+                    std::reverse(shortest_path_[j][i].begin(), shortest_path_[j][i].end());
                 }
             }
         }
@@ -44,9 +55,16 @@ std::pair<int64_t, std::vector<int> > RuralPostman::Run(int n_arg,
         g_[u][v].w = g_[v][u].w = w;
     }
 
+    for (int chosen_edge: chosen_edges) {
+        chosen_edges_.push_back(g_[u_arg[chosen_edge]][v_arg[chosen_edge]]);
+        chosen_vertices_.insert(std::make_pair(u_arg[chosen_edge], v_arg[chosen_edge]));
+    }
+
     // Graph transformation according to Lemma 3.2
     shortest_path_ = std::vector<std::vector<std::vector<int> > >(n_ + 1, std::vector<std::vector<int> >(n_ + 1));
     TransformGraph();
+
+    // Debug
     /*
     std::cout << "Transformed graph:" << std::endl;
     for (int u = 1; u <= n_; ++u) {
@@ -55,12 +73,13 @@ std::pair<int64_t, std::vector<int> > RuralPostman::Run(int n_arg,
             for (int v : shortest_path_[u][v]) {
                 std::cout << v << " ";
             }
-            if (shortest_path_[u][v].size() > 0) {
+            if (!shortest_path_[u][v].empty()) {
                 std::cout << std::endl;
             }
         }
         std::cout << std::endl;
     }*/
+
 
     // Subgraph on the vertices of chosen edges
     subgraph_ = std::vector<std::vector<Edge> >(n_ + 1, std::vector<Edge>(n_ + 1));
@@ -77,13 +96,15 @@ std::pair<int64_t, std::vector<int> > RuralPostman::Run(int n_arg,
         subgraph_[e.u][e.v].w = subgraph_[e.v][e.u].w = e.w;
     }
 
-    /*
+
     // Debug
+    /*
     std::cout << "Chosen edges:" << std::endl;
+    std::cout << "Length: " << chosen_edges_.size() << std::endl;
     for (Edge e: chosen_edges_) {
         std::cout << e.u << " " << e.v << " " << e.w << std::endl;
     }
-     */
+*/
 
     // Vertices of the subgraph
     for (int u = 1; u < n_; ++u) {
@@ -96,7 +117,8 @@ std::pair<int64_t, std::vector<int> > RuralPostman::Run(int n_arg,
     }
 
 
-    // Subgraph debug
+    // Subgraph Debug
+    /*
     std::cout << "Subgraph vertices:" << std::endl;
     for (int v : subgraph_vertices_) {
         std::cout << v << " ";
@@ -108,6 +130,7 @@ std::pair<int64_t, std::vector<int> > RuralPostman::Run(int n_arg,
         }
         std::cout << std::endl;
     }
+     */
 
 
     // Finding all components_ of the subgraph_
@@ -133,8 +156,8 @@ std::pair<int64_t, std::vector<int> > RuralPostman::Run(int n_arg,
         }
     }
 
-    /*
     // Debug
+    /*
     for (std::vector<int> component: components_) {
         std::cout << "Component:" << std::endl;
         for (int v : component) {
@@ -143,6 +166,7 @@ std::pair<int64_t, std::vector<int> > RuralPostman::Run(int n_arg,
         std::cout << std::endl;
     }
      */
+
 
     for (int i = 0; i < components_.size() - 1; ++i) {
         for (int j = i + 1; j < components_.size(); ++j) {
@@ -226,8 +250,9 @@ std::pair<int64_t, std::vector<Edge> > RuralPostman::BruteforceSearch(int num,
             g_new[e.u][e.v].w = g_new[e.v][e.u].w = e.w;
         }
 
-        /*
+
         // Debug
+        /*
         std::cout << "Current edges:" << std::endl;
         for (Edge e: current_edges) {
             std::cout << e.u << " " << e.v << " " << e.w << std::endl;
@@ -239,8 +264,7 @@ std::pair<int64_t, std::vector<Edge> > RuralPostman::BruteforceSearch(int num,
             }
             std::cout << std::endl;
         }
-        */
-
+    */
 
         if (IsConnected(g_new, subgraph_vertices_)) {
             std::vector<int> odd_vertices;
@@ -267,8 +291,9 @@ std::pair<int64_t, std::vector<Edge> > RuralPostman::BruteforceSearch(int num,
                 }
             }
 
-            /*
+
             // Debug
+            /*
             std::cout << "Odd vertices:" << std::endl;
             for (int v: odd_vertices) {
                 std::cout << v << " ";
@@ -279,13 +304,14 @@ std::pair<int64_t, std::vector<Edge> > RuralPostman::BruteforceSearch(int num,
                 std::cout << e.u << " " << e.v << " " << e.w << std::endl;
             }
             std::cout << std::endl;
-            */
+*/
 
             int m = odd_vertices_edges.size();
-            std::vector<int> odd_vertices_mapping(odd_vertices.size());
+            std::vector<int> odd_vertices_mapping(n_ + 1, 0);
             for (int i = 0; i < odd_vertices.size(); ++i) {
                 odd_vertices_mapping[odd_vertices[i]] = i + 1;
             }
+
             std::vector<int> u(m), v(m), w(m);
             for (int i = 0; i < m; ++i) {
                 u[i] = odd_vertices_mapping[odd_vertices_edges[i].u];
@@ -293,24 +319,26 @@ std::pair<int64_t, std::vector<Edge> > RuralPostman::BruteforceSearch(int num,
                 w[i] = odd_vertices_edges[i].w;
             }
 
-            /*
+
             // Debug:
+            /*
             for (int i = 0; i < m; ++i) {
                 std::cout << u[i] << " " << v[i] << " " << w[i] << std::endl;
             }
-             */
+*/
 
             auto ans = MinMatching(odd_vertices.size()).Run(odd_vertices.size(), m,
                                                             u, v, w);
-            /*
+
             // Debug
+            /*
             std::cout << "Min matching:" << std::endl;
             std::cout << ans.first << std::endl;
             for (int i : ans.second) {
                 std::cout << i << " ";
             }
             std::cout << std::endl;
-            */
+*/
 
             if (ans.first == -1) {
                 return std::make_pair(RuralPostman::INF, std::vector<Edge>());
@@ -340,9 +368,10 @@ std::pair<int64_t, std::vector<Edge> > RuralPostman::BruteforceSearch(int num,
         std::vector<Edge> edges = current_edges;
         std::pair<int64_t, std::vector<Edge> > ans = std::make_pair(RuralPostman::INF,
                                                                     std::vector<Edge>());
-        // DEBUG
+        // Debug
+        /*
         std::cout << "i = " << i << ", j = " << j << std::endl;
-
+*/
         for (int u : components_[i]) {
             for (int v : components_[j]) {
                 if (g_[u][v].w != INF) {
@@ -355,6 +384,7 @@ std::pair<int64_t, std::vector<Edge> > RuralPostman::BruteforceSearch(int num,
                 }
             }
         }
+        return ans;
     }
     return std::make_pair(RuralPostman::INF, std::vector<Edge>());
 }

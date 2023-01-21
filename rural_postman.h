@@ -2,6 +2,7 @@
 #define RPP__RURAL_POSTMAN_H_
 
 #include <vector>
+#include <set>
 
 struct Edge {
   int u{0}, v{0}, w{0};
@@ -28,6 +29,7 @@ class RuralPostman{
   std::vector<Edge> chosen_edges_;
   // Saved paths between every pair of vertices
   std::vector<std::vector<std::vector<int> > > shortest_path_;
+  std::set<std::pair<int, int>> chosen_vertices_;
 
   // Components
   std::vector<std::vector<int> > components_;
