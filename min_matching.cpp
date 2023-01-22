@@ -1,16 +1,16 @@
 #include "min_matching.h"
 
 MinMatching::MinMatching(int n) : n_(n) {
-    g_ = std::vector<std::vector<Edge> >(n+1, std::vector<Edge>(n+1));
-    flower_from_ = std::vector<std::vector<int> >(n+1, std::vector<int>(n+1));
-    flower_ = std::vector<std::vector<int> >(n+1);
-    match_ = std::vector<int>(n+1);
-    st_ = std::vector<int>(n+1);
-    lab_ = std::vector<int>(n+1);
-    slack_ = std::vector<int>(n+1);
-    s_ = std::vector<int>(n+1);
-    pa_ = std::vector<int>(n+1);
-    vis_ = std::vector<int>(n+1);
+    g_ = std::vector<std::vector<Edge> >(2 * n, std::vector<Edge>(2 * n));
+    flower_from_ = std::vector<std::vector<int> >(2 * n, std::vector<int>(2 * n));
+    flower_ = std::vector<std::vector<int> >(2 * n);
+    match_ = std::vector<int>(2 * n);
+    st_ = std::vector<int>(2 * n);
+    lab_ = std::vector<int>(2 * n);
+    slack_ = std::vector<int>(2 * n);
+    s_ = std::vector<int>(2 * n);
+    pa_ = std::vector<int>(2 * n);
+    vis_ = std::vector<int>(2 * n);
 }
 
 void MinMatching::update_slack(int u, int x) {

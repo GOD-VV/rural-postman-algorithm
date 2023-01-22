@@ -244,7 +244,7 @@ std::vector<Edge> RuralPostman::FindEulerCycle(std::vector<std::vector<Edge> > g
 
 std::pair<int64_t, std::vector<Edge> > RuralPostman::BruteforceSearch(int num,
                                                                       std::vector<Edge> current_edges) {
-    if (num == component_pairs_.size()) {
+    if (num == components_.size() - 1) {
         std::vector<std::vector<Edge> > g_new = subgraph_;
         for (Edge e: current_edges) {
             g_new[e.u][e.v].w = g_new[e.v][e.u].w = e.w;

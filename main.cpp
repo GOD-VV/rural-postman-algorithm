@@ -87,13 +87,39 @@ void RunOneComponentRandomGraph(int n) {
     std::cout << "\n";
 }
 
-void RunFourComponentGraph(int n) {
+void RunTwoComponentGraph(int n) {
     int m = n * (n - 1) / 2;
     std::vector<int> u(m), v(m), w(m);
     int k = 0;
     std::vector<int> chosen_edges;
     for (int i = 1; i <= n - 1; ++i) {
         if (i != n / 2) {
+            chosen_edges.push_back(k);
+        }
+        for (int j = i + 1; j <= n; ++j) {
+            u[k] = i;
+            v[k] = j;
+            w[k] = rand() % 100 + 1;
+            ++k;
+        }
+    }
+    auto ans = RuralPostman().Run(n, m, u,
+                                  v, w, chosen_edges);
+    std::cout << "Cost: " << ans.first << "\n";
+    std::cout << "Cycle traversal: ";
+    for (int i = 0; i < ans.second.size(); ++i) {
+        std::cout << ans.second[i] << " ";
+    }
+    std::cout << "\n";
+}
+
+void RunFourComponentGraph(int n) {
+    int m = n * (n - 1) / 2;
+    std::vector<int> u(m), v(m), w(m);
+    int k = 0;
+    std::vector<int> chosen_edges;
+    for (int i = 1; i <= n - 1; ++i) {
+        if (i != n / 2 && i != n / 4 && i != 3 * n / 4) {
             chosen_edges.push_back(k);
         }
         for (int j = i + 1; j <= n; ++j) {
@@ -128,10 +154,6 @@ void RunManyComponentGraph(int n) {
             w[k] = rand() % 100 + 1;
             ++k;
         }
-    }
-    std::cout << chosen_edges.size() << "\n";
-    for (int i = 0; i < chosen_edges.size(); ++i) {
-        std::cout << chosen_edges[i] << " ";
     }
     auto ans = RuralPostman().Run(n, m, u,
                                   v, w, chosen_edges);
@@ -183,7 +205,8 @@ int main() {
     std::vector<int> n_values = {8, 16, 32, 64, 128, 256};
 
     // Random graph with one component
-    /*
+/*
+    n_values = {8, 12, 16, 20, 32, 64, 128, 256};
     for (int i = 0; i < n_values.size(); ++i) {
         auto start = StartTime();
         std::cout << "n = " << n_values[i] << "\n";
@@ -192,18 +215,32 @@ int main() {
     }
      */
 
+    // Random graph with two components
+/*
+    n_values = {8, 12, 16, 20, 32, 64, 128};
+    for (int i = 0; i < n_values.size(); ++i) {
+        auto start = StartTime();
+        std::cout << "n = " << n_values[i] << "\n";
+        RunTwoComponentGraph(n_values[i]);
+        EndTime(start);
+    }
+*/
+
     // Random graph with four components
     /*
+    n_values = {8, 12, 16, 20, 32};
     for (int i = 0; i < n_values.size(); ++i) {
         auto start = StartTime();
         std::cout << "n = " << n_values[i] << "\n";
         RunFourComponentGraph(n_values[i]);
         EndTime(start);
     }
-     */
+    */
 
-    /*
+
     // Random graph with many components
+    /*
+    n_values = {8, 12, 16, 20};
     for (int i = 0; i < n_values.size(); ++i) {
         auto start = StartTime();
         std::cout << "n = " << n_values[i] << "\n";
@@ -211,7 +248,6 @@ int main() {
         EndTime(start);
     }
      */
-
     //////////////////////////////////////////////////////////
 
     ////////////////////////RURAL POSTMAN/////////////////////
